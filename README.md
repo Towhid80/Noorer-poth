@@ -1,1 +1,733 @@
-# Noorer-poth
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1200, initial-scale=1.0">
+    <title>নূরের পথ- ওয়েবসাইট</title>
+    <style>
+        /* --- সার্বিক ডিজাইন --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f4f7f5; color: #333; line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* হেডার ও মেনু বার */
+        header { background-color: #0b5133; color: #fff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .logo-area h1 { color: #ffd700; font-size: 24px; cursor: pointer; }
+        nav ul { display: flex; list-style: none; gap: 15px; align-items: center; }
+        nav ul li a { color: #fff; text-decoration: none; font-weight: bold; cursor: pointer; padding: 5px 10px; border-radius: 4px; transition: 0.3s; }
+        nav ul li a:hover, nav ul li a.active-link { color: #ffd700; background-color: rgba(255,255,255,0.1); }
+        
+        /* বাটন স্টাইল */
+        .admission-btn { background-color: #ffd700; color: #0b5133 !important; padding: 8px 15px !important; border-radius: 20px !important; }
+        .admission-btn:hover { background-color: #fff !important; color: #0b5133 !important; }
+        .admin-nav-btn { background-color: #dc3545; color: #fff !important; padding: 8px 15px !important; border-radius: 20px !important; }
+        .admin-nav-btn:hover { background-color: #fff !important; color: #dc3545 !important; }
+
+        /* ব্যানার */
+        .hero { background-image: linear-gradient(rgba(11,81,51,0.8), rgba(0,0,0,0.6)), url('banner.jpg'); background-size: cover; background-position: center; height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; text-align: center; padding: 20px; }
+        .hero h2 { font-size: 34px; color: #ffd700; margin-bottom: 10px; }
+        
+        /* মেইন কন্টেইনার */
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; }
+        
+        /* পেজ লুকানোর ব্যবস্থা */
+        .page-content { display: none; background: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); animation: fadeIn 0.4s ease-in-out; }
+        .page-content.active-page { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title { text-align: center; color: #0b5133; margin-bottom: 30px; font-size: 28px; }
+        
+        /* গ্রিড ওカード */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+        .card { background: #f9fbf9; padding: 20px; border-radius: 8px; border: 1px solid #e1ece6; text-align: center; }
+        .card img { width: 100%; height: 180px; object-fit: cover; border-radius: 5px; margin-bottom: 15px; }
+        .video-container { margin-top: 15px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 5px; }
+        
+        /* ফর্ম ও বাটন */
+        .btn { background-color: #ffd700; color: #0b5133; padding: 10px 25px; text-decoration: none; font-weight: bold; border-radius: 5px; display: inline-block; margin-top: 15px; border: none; cursor: pointer; }
+        .btn:hover { background-color: #0b5133; color: #fff; }
+        .form-group { margin-bottom: 15px; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        
+        .success-box { display: none; background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px; text-align: center; margin-bottom: 20px; font-weight: bold; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+        /* যোগাযোগ আইকন */
+        .social-icons { display: flex; justify-content: center; gap: 25px; margin-top: 20px; }
+        .social-icons img { width: 45px; height: 45px; transition: 0.3s; }
+        .social-icons img:hover { transform: scale(1.2); }
+
+        /* 💬 মেসেঞ্জার (Chat Box) ডিজাইন */
+        .messenger-container { max-width: 500px; margin: 20px auto 0 auto; border: 1px solid #ddd; border-radius: 10px; background: #f9f9f9; overflow: hidden; display: flex; flex-direction: column; height: 350px; }
+        .chat-header { background: #0b5133; color: white; padding: 12px; font-weight: bold; text-align: center; font-size: 16px; }
+        .chat-messages { padding: 15px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #fff; }
+        
+        /* চ্যাট বাবলস */
+        .msg-bubble { max-width: 80%; padding: 8px 12px; border-radius: 15px; font-size: 14px; position: relative; word-wrap: break-word; }
+        .msg-user { background: #e1ece6; align-self: flex-start; border-top-left-radius: 2px; color: #333; }
+        .msg-admin { background: #0b5133; color: white; align-self: flex-end; border-top-right-radius: 2px; }
+        .msg-name { font-size: 11px; font-weight: bold; margin-bottom: 3px; display: block; opacity: 0.7; }
+        
+        /* চ্যাট ইনপুট এরিয়া */
+        .chat-input-area { display: flex; padding: 10px; background: #f4f7f5; border-top: 1px solid #ddd; }
+        .chat-input-area input { flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 20px; outline: none; }
+        .chat-input-area button { background: #0b5133; color: white; border: none; padding: 0 15px; margin-left: 8px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .chat-input-area button:hover { background: #ffd700; color: #0b5133; }
+
+        /* এডমিন ড্যাশবোর্ড ও টেবিল */
+        .login-box { max-width: 350px; margin: 40px auto; text-align: center; padding: 30px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa; }
+        .dashboard-box { display: none; margin-top: 20px; }
+        
+        .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
+        .tab-btn { padding: 8px 16px; border: none; background: #e1ece6; cursor: pointer; font-weight: bold; border-radius: 4px; }
+        .tab-btn.active-tab { background: #0b5133; color: white; }
+
+        .admin-section { display: none; }
+        .admin-section.active-section { display: block; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; font-size: 14px; }
+        th { background-color: #0b5133; color: white; }
+        .accept-btn { background: #28a745; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; margin-right: 2px; }
+        .edit-btn { background: #007bff; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; margin-right: 2px; }
+        .reject-btn { background: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
+        .status-badge { padding: 3px 8px; border-radius: 12px; font-weight: bold; font-size: 12px; display: inline-block; }
+        .Approved { background: #d4edda; color: #155724; }
+        .Pending { background: #fff3cd; color: #856404; }
+
+        /* টেবিল ইনপুট এডিট মোড */
+        .table-edit-input { width: 100%; padding: 4px; border: 1px solid #007bff; border-radius: 4px; }
+
+        /* 📁 ফাইল আপলোড সেকশন স্টাইল */
+        .upload-box { background: #f9fbf9; border: 2px dashed #0b5133; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+        .file-list { list-style: none; padding: 0; margin-top: 15px; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border: 1px solid #ddd; margin-bottom: 5px; border-radius: 4px; }
+        .file-item a { color: #0b5133; text-decoration: none; font-weight: bold; }
+
+        /* 📒 নোটবুক অভ্যন্তরীণ সেকশন স্টাইল */
+        .notebook-container { background: #fdfefe; border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .notebook-sub-tabs { display: flex; gap: 10px; margin-bottom: 15px; background: #f4f7f5; padding: 8px; border-radius: 6px; }
+        .sub-tab-btn { padding: 6px 12px; border: 1px solid #ccc; background: #fff; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.2s; }
+        .sub-tab-btn.active-sub-tab { background: #ffd700; color: #0b5133; border-color: #ffd700; }
+        .notebook-textarea { width: 100%; height: 280px; padding: 15px; font-size: 15px; border: 1px solid #ccc; border-radius: 6px; resize: vertical; line-height: 1.6; font-family: 'Courier New', Courier, monospace; background-color: #fffde7; }
+
+        footer { background-color: #111; color: #aaa; text-align: center; padding: 15px; margin-top: auto; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area" onclick="switchPage('home')"><h1>নূরের পথ</h1></div>
+        <nav>
+            <ul>
+                <li><a id="link-home" onclick="switchPage('home')" class="active-link">হোম</a></li>
+                <li><a id="link-quran" onclick="switchPage('quran')">কুরআন শিক্ষা</a></li>
+                <li><a id="link-ghazal" onclick="switchPage('ghazal')">গজল ও নাত</a></li>
+                <li><a id="link-contact" onclick="switchPage('contact')">যোগাযোগ</a></li>
+                <li><a id="link-admission" onclick="switchPage('admission')" class="admission-btn">ভর্তি হন</a></li>
+                <li><a id="link-admin" onclick="switchPage('admin')" class="admin-nav-btn">🔐প্রধান শিক্ষক</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+
+        <div id="page-home" class="page-content active-page">
+            <div class="hero" style="margin-bottom: 30px; border-radius: 8px;">
+                <h2>দ্বীনি শিক্ষার আলো ছড়াতে আমাদের ইসলাম</h2>
+                <p>সহীহ্ উচ্চারণে কুরআন মাজীদ এবং মধুর কণ্ঠে ইসলামী নাশিদ বা গজল শিখতে আমাদের কোর্সগুলোতে যুক্ত হোন।</p>
+                <button onclick="switchPage('admission')" class="btn">ভর্তি আবেদন করুন</button>
+            </div>
+            
+            <div style="text-align: center;">
+                <h3 style="color:#0b5133; margin-bottom:15px; font-size:24px;">কেন আমাদের মাদ্রাসায় ভর্তি হবেন?</h3>
+                <p>আমাদের এখানে রয়েছে অভিজ্ঞ ক্বারী ও নাশিদ শিল্পী। প্রতি সপ্তাহে লাইভ ক্লাস, ব্যক্তিগত যত্ন এবং সঠিক তাজবিদ শেখানোর নিশ্চয়তা। ওপরের মেনু থেকে আমাদের কোর্সগুলো দেখে আজই আপনার সিট বুক করুন।</p>
+                <br>
+                <img src="e:\islamic website\1111.png" alt="মাদ্রাসার ছবি" style="width:100%; max-height:auto; object-fit:cover; border-radius:8px;">
+            </div>
+        </div>
+
+        <div id="page-quran" class="page-content">
+            <h2 class="section-title">সহীহ কুরআন শিক্ষা ক্লাসসমূহ</h2>
+            <div class="grid">
+                <div class="card">
+                    <img src="e:\islamic website\2222.png" alt="তাজবিদ ক্লাস"style="width:100%;height:auto; object-fit:cover; border-radius:8px;">
+                    <h3>নূরানী কায়দা ও মাখরাজ শিক্ষা</h3>
+                    <p>আরবী হরফের সঠিক উচ্চারণ ও ১০টি সুরের নিয়মাবলী। ভিডিওটি দেখে ধারণা নিন।</p>
+                    <div class="video-container">
+                        <iframe src="e:\islamic website\IMG_20260522_142731.png" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <button onclick="switchPage('admission')" class="btn">এই কোর্সে ভর্তি হন</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-ghazal" class="page-content">
+            <h2 class="section-title">ইসলামিক নাশিদ ও সুন্দর গজল শিক্ষা</h2>
+            <div class="grid">
+                <div class="card">
+                    <img src="e:\islamic website\3333.png" alt="গজল শিক্ষা" style="width:100%; height:auto; object-fit:cover; border-radius:8px;">
+                    <img src="e:\islamic website\IMG_20260522_143138.png" alt="গজল শিক্ষা" style="width:100%; height:auto; object-fit:cover; border-radius:8px;">
+                    <h4>কণ্ঠশিলন ও সুরের প্রশিক্ষণ কোর্স</h4>
+                    <p>হামদ-এ-বারী তাআলা এবং নাতে রাসুল (সাঃ) গাওয়ার বিশেষ কৌশল ও রাগ শিক্ষা।</p>
+                    <br>
+                    <button onclick="switchPage('admission')" class="btn">গজল কোর্সে ভর্তি হন</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-contact" class="page-content">
+            <h2 class="section-title">আমাদের সাথে যোগাযোগের মাধ্যমসমূহ</h2>
+            
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                <div style="text-align: center; padding: 20px; border-right: 1px solid #ddd;">
+                    <p style="font-size: 18px; margin-bottom: 10px;">📞 মোবাইল নাম্বার: <strong>+8801889626880</strong></p>
+                    <p style="font-size: 18px; margin-bottom: 25px;">✉️ জিমেইল আইডি: <strong>imd62888@gmail.com</strong></p>
+                    <hr style="width: 50%; margin: 20px auto; border: 0.5px solid #ddd;">
+                    <h3 style="color: #0b5133; margin-bottom: 15px;">অনলাইন লিংক</h3>
+                    <div class="social-icons">
+                        <a href="https://wa.me/message/U3YCOQB5LVXCD1" target="_blank"><img src="e:\islamic website\whatsapp.png" alt="WhatsApp"></a>
+                        <a href="https://www.facebook.com/share/1JtAAHHVXk/" target="_blank"><img src="e:\islamic website\facbook.png" alt="Facebook"></a>
+                        <a href="https://www.youtube.com/@Islamicshor880" target="_blank"><img src="e:\islamic website\youtube.png" alt="YouTube"></a>
+                        <a href="https://t.me/islamicShor880" target="_blank"><img src="e:\islamic website\telegrom.png" alt="telegram"></a>
+                        <a href="https://towhiud-islamic-artist.vercel.app/" target="_blank"><img src="e:\islamic website\ami.png" alt="My artist website"></a>
+                    </div>
+                </div>
+
+                <div style="padding: 10px;">
+                    <div class="messenger-container" style="margin-top: 0; width: 100%;">
+                        <div class="chat-header">💬 সরাসরি মেসেজ বা প্রশ্ন পাঠান</div>
+                        <div id="chatMessages" class="chat-messages"></div>
+                        <div class="chat-input-area">
+                            <input type="text" id="chatUserName" placeholder="আপনার নাম..." style="width: 30%; max-width: 90px; margin-right: 5px; flex: none; border-radius: 5px;">
+                            <input type="text" id="chatTextInput" placeholder="এখানে মেসেজ লিখুন...">
+                            <button onclick="userSendChat()">পাঠান</button>
+                        </div>
+                    </div>
+                    <p style="font-size: 12px; color: #777; text-align: center; margin-top: 8px;">* আপনার পাঠানো মেসেজ কেবল মাদ্রাসা কর্তৃপক্ষ (এডমিন) দেখতে পাবেন।</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-admission" class="page-content" style="text-align: center;">
+            <h2 class="section-title">অনলাইন ভর্তি ফরম</h2>
+            <div id="successBox" class="success-box">🎉 আপনার ফরমটি সম্পূর্ণভাবে পূরণ করা হয়েছে এবং আবেদনের তথ্য পাঠানো হয়েছে!</div>
+            <form id="admissionForm" onsubmit="saveData(event)">
+                <div class="form-group"><label>ছাত্র/ছাত্রীর নাম *</label><input type="text" id="sName" required></div>
+                <div class="form-group"><label>বাবার নাম *</label><input type="text" id="sFather" required></div>
+                <div class="form-group"><label>মায়ের নাম *</label><input type="text" id="sMother" required></div>
+                <div class="form-group"><label>জন্ম নিবন্ধনের নাম্বার *</label><input type="number" id="sBirth" required></div>
+                <div class="form-group"><label>মোবাইল নাম্বার *</label><input type="tel" id="sPhone" required></div>
+                <button type="submit" class="btn" style="width:100%; max-width:500px;">সাবমিট করুন</button>
+            </form>
+        </div>
+
+        <div id="page-admin" class="page-content">
+            <h2 class="section-title" style="color: #dc3545;">মাদ্রাসার মেইন কন্ট্রোল প্যানেল (এডমিন)</h2>
+            
+            <div id="loginBox" class="login-box">
+                <p style="margin-bottom: 15px; font-weight: bold;">প্যানেল নিয়ন্ত্রণ করতে পাসওয়ার্ড দিন:</p>
+                <input type="password" id="adminPass" placeholder="সিক্রেট পাসওয়ার্ড দিন" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;"><br>
+                <button onclick="adminLogin()" class="btn" style="background:#dc3545; color:#fff; width:100%; margin:0;">প্রবেশ করুন</button>
+            </div>
+
+            <div id="dashboardBox" class="dashboard-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div class="admin-tabs">
+                        <button id="tab-btn-students" class="tab-btn active-tab" onclick="switchAdminTab('students')">ভর্তি আবেদনকারী</button>
+                        <button id="tab-btn-messages" class="tab-btn" onclick="switchAdminTab('messages')">💬 ছাত্রদের মেসেজ ও নোটিশ চ্যাট</button>
+                        <button id="tab-btn-files" class="tab-btn" onclick="switchAdminTab('files')">📁 সুরক্ষিত ডকুমেন্ট ফাইল</button>
+                        <button id="tab-btn-notebook" class="tab-btn" onclick="switchAdminTab('notebook')">📒 হিসাব ও নোটবুক</button>
+                    </div>
+                    <button onclick="adminLogout()" class="btn" style="background:#666; color:#fff; margin:0; padding:5px 15px;">লগআউট</button>
+                </div>
+
+                <div id="admin-sec-students" class="admin-section active-section">
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">ক্র. নং</th>
+                                    <th>নাম</th>
+                                    <th>বাবার নাম</th>
+                                    <th>জন্ম নিবন্ধন</th>
+                                    <th>মোবাইল নম্বর</th>
+                                    <th>অবস্থা</th>
+                                    <th style="width: 220px;">অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="admin-sec-messages" class="admin-section">
+                    <div style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); display: grid; gap: 20px;">
+                        <div>
+                            <h4>📥 ছাত্রদের থেকে আসা ইনবক্স মেসেজ:</h4>
+                            <div style="overflow-x: auto;">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>ছাত্রের নাম</th>
+                                            <th>মেসেজ</th>
+                                            <th>অ্যাকশন</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="adminMessageTable"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4>📢 সবার উদ্দেশ্যে মেসেজ/নোটিশ পাঠান:</h4>
+                            <div class="messenger-container" style="width: 100%; height: 250px;">
+                                <div id="adminChatMessagesView" class="chat-messages"></div>
+                                <div class="chat-input-area">
+                                    <input type="text" id="adminTextInput" placeholder="এখানে লিখলে সবাই দেখতে পাবে...">
+                                    <button onclick="adminSendChat()" style="background: #dc3545;">পাঠান</button>
+                                </div>
+                            </div>
+                            <button onclick="clearAllChats()" class="btn" style="background:#dc3545; color:#fff; width:100%; padding:5px; font-size:12px;">সব নোটিশ মুছুন</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="admin-sec-files" class="admin-section">
+                    <h4>🔒 আপনার সুরক্ষিত ডকুমেন্ট ম্যানেজার</h4>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 15px;">এখানে আপলোড করা ফাইল বা ডকুমেন্ট শুধুমাত্র আপনি (এডমিন) দেখতে ও ডাউনলোড করতে পারবেন।</p>
+                    
+                    <div class="upload-box">
+                        <input type="file" id="secureFileInput" style="margin-bottom: 10px;"><br>
+                        <button onclick="uploadSecureFile()" class="btn" style="margin-top: 5px; background: #0b5133; color: #fff;">ফাইলটি আপলোড করুন</button>
+                    </div>
+
+                    <h5>📂 আপনার আপলোড করা ফাইলসমূহ:</h5>
+                    <ul id="uploadedFileList" class="file-list"></ul>
+                </div>
+
+                <div id="admin-sec-notebook" class="admin-section">
+                    <h4>📒 প্রধান শিক্ষকের ব্যক্তিগত খাতা ও হিসাবনিকাশ</h4>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 15px;">নিচের ক্যাটাগরিগুলো সিলেক্ট করে আপনার নির্দিষ্ট হিসাব বা গোপন নোট আলাদাভাবে লিখে রাখুন।</p>
+                    
+                    <div class="notebook-container">
+                        <div class="notebook-sub-tabs">
+                            <button id="sub-tab-students" class="sub-tab-btn active-sub-tab" onclick="switchNotebookCategory('students')">১. ছাত্রদের নোটবুক</button>
+                            <button id="sub-tab-madrasa" class="sub-tab-btn" onclick="switchNotebookCategory('madrasa')">২. মাদ্রাসা নোটবুক</button>
+                            <button id="sub-tab-myths" class="sub-tab-btn" onclick="switchNotebookCategory('myths')">৩. মিথ্যে কথা নোটবুক</button>
+                        </div>
+
+                        <textarea id="adminNotebookInput" class="notebook-textarea" placeholder="এখানে আপনার ছাত্রদের নোট বা হিসাব লিখুন..."></textarea>
+                        <button onclick="saveAdminNotes()" class="btn" style="background: #0b5133; color: #fff; width: 100%; margin-top: 15px; font-size: 16px;">💾 এই সেকশনের নোট সেভ করুন</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 নূরের পথ। সর্বস্বত্ব সংরক্ষিত।</p>
+    </footer>
+
+    <script>
+        let currentNotebookCategory = 'students';
+        let editingStudentId = null; // বর্তমানে কোন স্টুডেন্ট আইডি এডিট হচ্ছে তা ট্র্যাক করার জন্য
+
+        // পেজ পরিবর্তন
+        function switchPage(pageName) {
+            document.querySelectorAll('.page-content').forEach(page => page.classList.remove('active-page'));
+            document.querySelectorAll('nav ul li a').forEach(link => link.classList.remove('active-link'));
+
+            document.getElementById('page-' + pageName).classList.add('active-page');
+            const activeLink = document.getElementById('link-' + pageName);
+            if(activeLink) activeLink.classList.add('active-link');
+            
+            if(pageName === 'contact' || pageName === 'admin') {
+                renderUserChatView();
+                renderAdminChatView();
+            }
+            window.scrollTo(0, 0);
+        }
+
+        // ছাত্র বা ইউজারের ভিউ রেন্ডার
+        function renderUserChatView() {
+            const chatBox = document.getElementById('chatMessages');
+            if(!chatBox) return;
+
+            let chats = JSON.parse(localStorage.getItem('admin_broadcast_chats')) || [];
+            let chatHTML = '';
+
+            chats.forEach(msg => {
+                chatHTML += `<div class="msg-bubble msg-admin"><span class="msg-name">হযরত (মাদ্রাসা কর্তৃপক্ষ)</span>${msg.text}</div>`;
+            });
+
+            chatBox.innerHTML = chatHTML ? chatHTML : '<p style="text-align:center; color:#999; margin-top:20px;">মাদ্রাসা থেকে এখনো কোনো সাধারণ মেসেজ দেওয়া হয়নি। আপনার কোনো প্রশ্ন থাকলে নিচে নাম লিখে আমাদের মেসেজ পাঠান।</p>';
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // ছাত্র মেসেজ সেন্ড করা
+        function userSendChat() {
+            const nameInput = document.getElementById('chatUserName').value.trim();
+            const textInput = document.getElementById('chatTextInput').value.trim();
+
+            if(!nameInput) { alert('দয়া করে আপনার নাম লিখুন!'); return; }
+            if(!textInput) return;
+
+            let studentInbox = JSON.parse(localStorage.getItem('student_inbox_messages')) || [];
+            studentInbox.push({
+                id: Date.now(),
+                name: nameInput,
+                text: textInput
+            });
+
+            localStorage.setItem('student_inbox_messages', JSON.stringify(studentInbox));
+            document.getElementById('chatTextInput').value = '';
+            alert('আপনার মেসেজটি প্রধান শিক্ষক কাছে পাঠানো হয়েছে!');
+            loadStudentInboxInAdmin();
+        }
+
+        // এডমিন প্যানেলে ছাত্রদের ইনবক্স মেসেজ লোড করা
+        function loadStudentInboxInAdmin() {
+            const table = document.getElementById('adminMessageTable');
+            if(!table) return;
+            table.innerHTML = '';
+
+            let messages = JSON.parse(localStorage.getItem('student_inbox_messages')) || [];
+
+            if(messages.length === 0) {
+                table.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#999;">কোনো গোপন মেসেজ আসেনি।</td></tr>';
+                return;
+            }
+
+            messages.forEach(msg => {
+                table.innerHTML += `
+                    <tr>
+                        <td><strong>${msg.name}</strong></td>
+                        <td>${msg.text}</td>
+                        <td><button class="reject-btn" style="padding:2px 6px; font-size:12px;" onclick="deleteInboxMessage(${msg.id})">মুছুন</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // এডমিনের ব্রডকাস্ট চ্যাট ভিউ রেন্ডার
+        function renderAdminChatView() {
+            const adminChatViewBox = document.getElementById('adminChatMessagesView');
+            if(!adminChatViewBox) return;
+
+            let chats = JSON.parse(localStorage.getItem('admin_broadcast_chats')) || [];
+            let chatHTML = '';
+
+            chats.forEach(msg => {
+                chatHTML += `<div class="msg-bubble msg-admin" style="align-self: flex-start; background:#dc3545;"><span class="msg-name">আপনার পাঠানো নোটিশ</span>${msg.text}</div>`;
+            });
+
+            adminChatViewBox.innerHTML = chatHTML ? chatHTML : '<p style="text-align:center; color:#999; margin-top:20px;">আপনি এখনো কোনো গ্লোবাম মেসেজ পাঠাননি।</p>';
+            adminChatViewBox.scrollTop = adminChatViewBox.scrollHeight;
+        }
+
+        // এডমিন যখন মেসেজ পাঠাবে
+        function adminSendChat() {
+            const textInput = document.getElementById('adminTextInput').value.trim();
+            if(!textInput) return;
+
+            let chats = JSON.parse(localStorage.getItem('admin_broadcast_chats')) || [];
+            chats.push({ text: textInput });
+
+            localStorage.setItem('admin_broadcast_chats', JSON.stringify(chats));
+            document.getElementById('adminTextInput').value = '';
+            
+            renderUserChatView();
+            renderAdminChatView();
+        }
+
+        // ইনবক্স মেসেজ ডিলিট করা
+        function deleteInboxMessage(id) {
+            let messages = JSON.parse(localStorage.getItem('student_inbox_messages')) || [];
+            messages = messages.filter(msg => msg.id !== id);
+            localStorage.setItem('student_inbox_messages', JSON.stringify(messages));
+            loadStudentInboxInAdmin();
+        }
+
+        // এডমিনের সব গ্লোবাল নোটিশ চ্যাট ক্লিয়ার করা
+        function clearAllChats() {
+            if(confirm('আপনি কি নিশ্চিত যে আপনার পাঠানো সব নোটিশ হিস্ট্রি মুছে ফেলবেন? (এটি ছাত্রদের স্ক্রিন থেকেও মুছে যাবে)')) {
+                localStorage.removeItem('admin_broadcast_chats');
+                renderUserChatView();
+                renderAdminChatView();
+            }
+        }
+
+        // ফাইল আপলোড এবং লোড করার ফাংশনসমূহ
+        function uploadSecureFile() {
+            const fileInput = document.getElementById('secureFileInput');
+            if (fileInput.files.length === 0) { alert('দয়া করে একটি ফাইল সিলেক্ট করুন!'); return; }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                let secureFiles = JSON.parse(localStorage.getItem('secure_uploaded_files')) || [];
+                secureFiles.push({
+                    id: Date.now(),
+                    name: file.name,
+                    data: e.target.result
+                });
+                localStorage.setItem('secure_uploaded_files', JSON.stringify(secureFiles));
+                fileInput.value = '';
+                alert('ফাইলটি সুরক্ষিতভাবে আপলোড করা হয়েছে!');
+                loadSecureFiles();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadSecureFiles() {
+            const fileListContainer = document.getElementById('uploadedFileList');
+            if (!fileListContainer) return;
+            fileListContainer.innerHTML = '';
+
+            let secureFiles = JSON.parse(localStorage.getItem('secure_uploaded_files')) || [];
+
+            if (secureFiles.length === 0) {
+                fileListContainer.innerHTML = '<li style="color:#999; text-align:center;">কোনো ফাইল আপলোড করা নেই।</li>';
+                return;
+            }
+
+            secureFiles.forEach(file => {
+                fileListContainer.innerHTML += `
+                    <li class="file-item">
+                        <a href="${file.data}" download="${file.name}">📄 ${file.name}</a>
+                        <button class="reject-btn" style="padding:3px 8px; font-size:12px;" onclick="deleteSecureFile(${file.id})">মুছুন</button>
+                    </li>
+                `;
+            });
+        }
+
+        function deleteSecureFile(id) {
+            if(confirm('আপনি কি নিশ্চিত যে এই ফাইলটি মুছে ফেলতে চান?')) {
+                let secureFiles = JSON.parse(localStorage.getItem('secure_uploaded_files')) || [];
+                secureFiles = secureFiles.filter(file => file.id !== id);
+                localStorage.setItem('secure_uploaded_files', JSON.stringify(secureFiles));
+                loadSecureFiles();
+            }
+        }
+
+        // নোটবুক ক্যাটাগরি পরিবর্তনের ফাংশন
+        function switchNotebookCategory(category) {
+            currentNotebookCategory = category;
+            document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active-sub-tab'));
+            document.getElementById('sub-tab-' + category).classList.add('active-sub-tab');
+
+            const textarea = document.getElementById('adminNotebookInput');
+            if(category === 'students') {
+                textarea.placeholder = "এখানে আপনার ছাত্রদের নোট, রোল নম্বর বা ফিসের হিসাব লিখুন...";
+            } else if(category === 'madrasa') {
+                textarea.placeholder = "এখানে মাদ্রাসার মূল আয়-ব্যয়, শিক্ষক ও স্টাফদের বেতন বা প্রধান ফান্ডের হিসাব লিখুন...";
+            } else if(category === 'myths') {
+                textarea.placeholder = "এখানে আপনার বিশেষ ব্যক্তিগত নোট বা অন্য যেকোনো দরকারি হিসাব লিখে রাখুন...";
+            }
+
+            loadAdminNotes();
+        }
+
+        // নির্দিষ্ট ক্যাটাগরির নোট সেভ করা
+        function saveAdminNotes() {
+            const notesText = document.getElementById('adminNotebookInput').value;
+            localStorage.setItem('admin_notebook_' + currentNotebookCategory, notesText);
+            
+            let catName = '';
+            if(currentNotebookCategory === 'students') catName = 'ছাত্রদের নোটবুক';
+            if(currentNotebookCategory === 'madrasa') catName = 'মাদ্রাসা নোটবুক';
+            if(currentNotebookCategory === 'myths') catName = 'মিথ্যে কথা নোটবুক';
+
+            alert(catName + '-এর তথ্য সফলভাবে সেভ করা হয়েছে!');
+        }
+
+        // নির্দিষ্ট ক্যাটাগরির নোট লোড করা
+        function loadAdminNotes() {
+            const savedNotes = localStorage.getItem('admin_notebook_' + currentNotebookCategory) || '';
+            document.getElementById('adminNotebookInput').value = savedNotes;
+        }
+
+        // ভর্তি ডাটা সেভ করা
+        function saveData(e) {
+            e.preventDefault();
+            const student = {
+                id: Date.now(),
+                name: document.getElementById('sName').value,
+                father: document.getElementById('sFather').value,
+                mother: document.getElementById('sMother').value,
+                birth: document.getElementById('sBirth').value,
+                phone: document.getElementById('sPhone').value,
+                status: 'Pending'
+            };
+
+            let studentsList = JSON.parse(localStorage.getItem('allStudents')) || [];
+            studentsList.push(student);
+            localStorage.setItem('allStudents', JSON.stringify(studentsList));
+
+            document.getElementById('successBox').style.display = 'block';
+            document.getElementById('admissionForm').reset();
+            loadStudentsInTable();
+            window.scrollTo(0, 0);
+        }
+
+        // এডমিন লগইন
+        function adminLogin() {
+            const pass = document.getElementById('adminPass').value;
+            if(pass === '246810') {
+                document.getElementById('loginBox').style.display = 'none';
+                document.getElementById('dashboardBox').style.display = 'block';
+                loadStudentsInTable();
+                loadStudentInboxInAdmin();
+                renderAdminChatView();
+                loadSecureFiles();
+                loadAdminNotes();
+            } else {
+                alert('ভুল পাসওয়ার্ড!');
+            }
+        }
+
+        // এডমিন প্যানেলের মেইন ট্যাব পরিবর্তন
+        function switchAdminTab(tabName) {
+            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active-section'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab'));
+
+            document.getElementById('admin-sec-' + tabName).classList.add('active-section');
+            document.getElementById('tab-btn-' + tabName).classList.add('active-tab');
+            
+            if(tabName === 'notebook') {
+                loadAdminNotes();
+            }
+        }
+
+        // টেবিলে ভর্তি ডাটা লোড (ক্র. নং এবং এডিট অপশনসহ আপডেটেড)
+        function loadStudentsInTable() {
+            const table = document.getElementById('studentTable');
+            if(!table) return;
+            table.innerHTML = '';
+            let students = JSON.parse(localStorage.getItem('allStudents')) || [];
+
+            if(students.length === 0) {
+                table.innerHTML = '<tr><td colspan="7" style="text-align:center;">কোনো আবেদন পাওয়া যায়নি।</td></tr>';
+                return;
+            }
+
+            students.forEach((st, index) => {
+                // যদি এই রো-টি এডিট মোডে থাকে
+                if (editingStudentId === st.id) {
+                    table.innerHTML += `
+                        <tr>
+                            <td><strong>${index + 1}</strong></td>
+                            <td><input type="text" id="edit-name-${st.id}" class="table-edit-input" value="${st.name}"></td>
+                            <td><input type="text" id="edit-father-${st.id}" class="table-edit-input" value="${st.father}"></td>
+                            <td><input type="number" id="edit-birth-${st.id}" class="table-edit-input" value="${st.birth}"></td>
+                            <td><input type="tel" id="edit-phone-${st.id}" class="table-edit-input" value="${st.phone}"></td>
+                            <td><span class="status-badge ${st.status}">${st.status === 'Approved' ? 'ভর্তি সফল' : 'পেন্ডিং'}</span></td>
+                            <td>
+                                <button class="accept-btn" onclick="saveStudentEdit(${st.id})">সেভ</button>
+                                <button class="reject-btn" onclick="cancelStudentEdit()">বাতিল</button>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    // সাধারণ ডিসপ্লে মোড
+                    table.innerHTML += `
+                        <tr>
+                            <td><strong>${index + 1}</strong></td>
+                            <td>${st.name}</td>
+                            <td>${st.father}</td>
+                            <td>${st.birth}</td>
+                            <td>${st.phone}</td>
+                            <td><span class="status-badge ${st.status}">${st.status === 'Approved' ? 'ভর্তি সফল' : 'পেন্ডিং'}</span></td>
+                            <td>
+                                <button class="accept-btn" onclick="approveStudent(${st.id})">কবুল</button>
+                                <button class="edit-btn" onclick="enableStudentEdit(${st.id})">এডিট</button>
+                                <button class="reject-btn" onclick="deleteStudent(${st.id})">বাতিল</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+        }
+
+        // এডিট মোড চালু করা
+        function enableStudentEdit(id) {
+            editingStudentId = id;
+            loadStudentsInTable();
+        }
+
+        // এডিট বাতিল করা
+        function cancelStudentEdit() {
+            editingStudentId = null;
+            loadStudentsInTable();
+        }
+
+        // এডিট করা তথ্য লোকাল স্টোরেজে সেভ করা
+        function saveStudentEdit(id) {
+            const updatedName = document.getElementById(`edit-name-${id}`).value.trim();
+            const updatedFather = document.getElementById(`edit-father-${id}`).value.trim();
+            const updatedBirth = document.getElementById(`edit-birth-${id}`).value.trim();
+            const updatedPhone = document.getElementById(`edit-phone-${id}`).value.trim();
+
+            if(!updatedName || !updatedFather || !updatedBirth || !updatedPhone) {
+                alert('সবগুলো ঘর সঠিকভাবে পূরণ করুন!');
+                return;
+            }
+
+            let students = JSON.parse(localStorage.getItem('allStudents')) || [];
+            students = students.map(st => {
+                if(st.id === id) {
+                    st.name = updatedName;
+                    st.father = updatedFather;
+                    st.birth = updatedBirth;
+                    st.phone = updatedPhone;
+                }
+                return st;
+            });
+
+            localStorage.setItem('allStudents', JSON.stringify(students));
+            editingStudentId = null; // এডিট মোড বন্ধ
+            loadStudentsInTable();
+            alert('ছাত্রের তথ্য সফলভাবে সংশোধন করা হয়েছে!');
+        }
+
+        function approveStudent(id) {
+            let students = JSON.parse(localStorage.getItem('allStudents')) || [];
+            students = students.map(st => {
+                if(st.id === id) st.status = 'Approved';
+                return st;
+            });
+            localStorage.setItem('allStudents', JSON.stringify(students));
+            loadStudentsInTable();
+        }
+
+        function deleteStudent(id) {
+            if(confirm('আপনি কি নিশ্চিত যে আবেদনটি বাতিল করতে চান?')) {
+                let students = JSON.parse(localStorage.getItem('allStudents')) || [];
+                students = students.filter(st => st.id !== id);
+                localStorage.setItem('allStudents', JSON.stringify(students));
+                loadStudentsInTable();
+            }
+        }
+
+        function adminLogout() {
+            document.getElementById('adminPass').value = '';
+            document.getElementById('loginBox').style.display = 'block';
+            document.getElementById('dashboardBox').style.display = 'none';
+            editingStudentId = null;
+            switchPage('home');
+        }
+
+        window.onload = function() {
+            renderUserChatView();
+        };
+    </script>
+</body>
+</html>
