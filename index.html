@@ -146,7 +146,7 @@
         <nav>
             <ul>
                 <li><a id="link-home" onclick="switchPage('home')" class="active-link">হোম</a></li>
-                <li><a id="link-quran" onclick="switchPage('quran')">کুরআন শিক্ষা</a></li>
+                <li><a id="link-quran" onclick="switchPage('quran')">কুরআন শিক্ষা</a></li>
                 <li><a id="link-ghazal" onclick="switchPage('ghazal')">গজল ও নাত</a></li>
                 <li><a id="link-contact" onclick="switchPage('contact')">যোগাযোগ</a></li>
                 <li><a id="link-admission" onclick="switchPage('admission')" class="admission-btn">ভর্তি হন</a></li>
@@ -331,26 +331,20 @@
     </footer>
 
     <script>
-        // এখানে আমি সম্পূর্ণ উন্মুক্ত একটি রেডিমেড বিশ্বস্ত ডাটাবেজ লিংক বসিয়ে দিয়েছি
-        const FIREBASE_URL = "https://noorer-poth-chat-all-default-rtdb.firebaseio.com/"; 
-
+        // --- লোকাল স্টোরেজ ডাটাবেজ সিস্টেম (ফায়ারবেস মুক্ত) ---
         let currentNotebookCategory = 'students';
         let editingStudentId = null; 
         let isUserLoggedInAsAdmin = false;
         let selectedStudentChat = ''; 
         let chatRefreshInterval = null;
 
-        async function fbFetch(path) {
-            try {
-                let res = await fetch(`${FIREBASE_URL}${path}.json`);
-                return await res.json();
-            } catch(e) { console.error(e); return null; }
+        // লোকাল ডাটা গেট ও সেট ফাংশন
+        function getLocalData(key) {
+            let data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : null;
         }
-
-        async function fbPut(path, data) {
-            try {
-                await fetch(`${FIREBASE_URL}${path}.json`, { method: 'PUT', body: JSON.stringify(data) });
-            } catch(e) { console.error(e); }
+        function setLocalData(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
         }
 
         function switchPage(pageName) {
@@ -365,11 +359,11 @@
             
             if(pageName === 'contact') {
                 initStudentChat();
-                chatRefreshInterval = setInterval(renderStudentChatView, 2500);
+                chatRefreshInterval = setInterval(renderStudentChatView, 1500);
             }
             if(pageName === 'admin' && isUserLoggedInAsAdmin) {
                 loadAllAdminData();
-                chatRefreshInterval = setInterval(loadLiveAdminChats, 2500);
+                chatRefreshInterval = setInterval(loadLiveAdminChats, 1500);
             }
             window.scrollTo(0, 0);
         }
@@ -389,7 +383,7 @@
             }
         }
 
-        async function renderStudentChatView() {
+        function renderStudentChatView() {
             const chatBox = document.getElementById('chatMessages');
             if(!chatBox) return;
             
@@ -399,7 +393,8 @@
                 return;
             }
 
-            let allChats = await fbFetch(`chats/${studentName}`) || [];
+            let chatsNode = getLocalData('local_chats') || {};
+            let allChats = chatsNode[studentName] || [];
             let chatHTML = '';
 
             allChats.forEach((msg, index) => {
@@ -431,7 +426,7 @@
             }
         }
 
-        async function sendChatMessage(isAdminMode) {
+        function sendChatMessage(isAdminMode) {
             let studentName = isAdminMode ? selectedStudentChat : document.getElementById('chatUserName').value.trim();
             let textInput = document.getElementById(isAdminMode ? 'adminChatTextInput' : 'chatTextInput');
             let text = textInput.value.trim();
@@ -439,14 +434,17 @@
             if(!studentName) { if(!isAdminMode) alert('আগে আপনার নাম লিখুন!'); return; }
             if(!text) return;
 
-            let allChats = await fbFetch(`chats/${studentName}`) || [];
+            let chatsNode = getLocalData('local_chats') || {};
+            let allChats = chatsNode[studentName] || [];
+            
             allChats.push({
                 sender: isAdminMode ? 'Admin' : studentName,
                 text: text,
                 time: Date.now()
             });
 
-            await fbPut(`chats/${studentName}`, allChats);
+            chatsNode[studentName] = allChats;
+            setLocalData('local_chats', chatsNode);
             textInput.value = '';
             
             let chatBox = document.getElementById(isAdminMode ? 'adminChatMessagesBox' : 'chatMessages');
@@ -455,7 +453,7 @@
             if(isAdminMode) renderAdminChatBoxView(); else renderStudentChatView();
         }
 
-        async function sendChatImage(isAdminMode) {
+        function sendChatImage(isAdminMode) {
             let studentName = isAdminMode ? selectedStudentChat : document.getElementById('chatUserName').value.trim();
             let fileInput = document.getElementById(isAdminMode ? 'adminChatImageInput' : 'chatImageInput');
             
@@ -464,14 +462,18 @@
 
             let file = fileInput.files[0];
             let reader = new FileReader();
-            reader.onload = async function(e) {
-                let allChats = await fbFetch(`chats/${studentName}`) || [];
+            reader.onload = function(e) {
+                let chatsNode = getLocalData('local_chats') || {};
+                let allChats = chatsNode[studentName] || [];
+                
                 allChats.push({
                     sender: isAdminMode ? 'Admin' : studentName,
                     image: e.target.result,
                     time: Date.now()
                 });
-                await fbPut(`chats/${studentName}`, allChats);
+                
+                chatsNode[studentName] = allChats;
+                setLocalData('local_chats', chatsNode);
                 fileInput.value = '';
                 
                 let chatBox = document.getElementById(isAdminMode ? 'adminChatMessagesBox' : 'chatMessages');
@@ -482,33 +484,37 @@
             reader.readAsDataURL(file);
         }
 
-        async function deleteChatMessage(studentName, index) {
+        function deleteChatMessage(studentName, index) {
             if(confirm('মেসেজটি কি সবার জন্য মুছে ফেলতে চান?')) {
-                let allChats = await fbFetch(`chats/${studentName}`) || [];
+                let chatsNode = getLocalData('local_chats') || {};
+                let allChats = chatsNode[studentName] || [];
                 allChats.splice(index, 1);
-                await fbPut(`chats/${studentName}`, allChats);
+                chatsNode[studentName] = allChats;
+                setLocalData('local_chats', chatsNode);
                 if(isUserLoggedInAsAdmin) renderAdminChatBoxView(); else renderStudentChatView();
             }
         }
 
-        async function editChatMessage(studentName, index, oldText) {
+        function editChatMessage(studentName, index, oldText) {
             let newText = prompt('মেসেজটি সংশোধন করুন:', oldText);
             if(newText === null) return;
             newText = newText.trim();
             if(!newText) return;
 
-            let allChats = await fbFetch(`chats/${studentName}`) || [];
+            let chatsNode = getLocalData('local_chats') || {};
+            let allChats = chatsNode[studentName] || [];
             if(allChats[index]) {
                 allChats[index].text = newText;
-                await fbPut(`chats/${studentName}`, allChats);
+                chatsNode[studentName] = allChats;
+                setLocalData('local_chats', chatsNode);
                 if(isUserLoggedInAsAdmin) renderAdminChatBoxView(); else renderStudentChatView();
             }
         }
 
         // --- এডমিন প্যানেল ---
-        async function loadLiveAdminChats() {
+        function loadLiveAdminChats() {
             if(!isUserLoggedInAsAdmin) return;
-            let chatsNode = await fbFetch('chats') || {};
+            let chatsNode = getLocalData('local_chats') || {};
             const listContainer = document.getElementById('adminChatList');
             if(!listContainer) return;
             
@@ -531,11 +537,12 @@
             renderAdminChatBoxView();
         }
 
-        async function renderAdminChatBoxView() {
+        function renderAdminChatBoxView() {
             const adminChatBox = document.getElementById('adminChatMessagesBox');
             if(!adminChatBox || !selectedStudentChat) return;
 
-            let allChats = await fbFetch(`chats/${selectedStudentChat}`) || [];
+            let chatsNode = getLocalData('local_chats') || {};
+            let allChats = chatsNode[selectedStudentChat] || [];
             let chatHTML = '';
 
             allChats.forEach((msg, index) => {
@@ -564,15 +571,15 @@
         }
 
         // --- ফাইল আপলোড ---
-        async function uploadSecureFile() {
+        function uploadSecureFile() {
             const fileInput = document.getElementById('secureFileInput');
             if (fileInput.files.length === 0) { alert('ফাইল সিলেক্ট করুন!'); return; }
             const file = fileInput.files[0];
             const reader = new FileReader();
-            reader.onload = async function(e) {
-                let secureFiles = await fbFetch('secure_uploaded_files') || [];
+            reader.onload = function(e) {
+                let secureFiles = getLocalData('secure_uploaded_files') || [];
                 secureFiles.push({ id: Date.now(), name: file.name, data: e.target.result });
-                await fbPut('secure_uploaded_files', secureFiles);
+                setLocalData('secure_uploaded_files', secureFiles);
                 fileInput.value = '';
                 alert('ফাইল আপলোড হয়েছে!');
                 loadSecureFiles();
@@ -580,10 +587,10 @@
             reader.readAsDataURL(file);
         }
 
-        async function loadSecureFiles() {
+        function loadSecureFiles() {
             const fileListContainer = document.getElementById('uploadedFileList');
             if (!fileListContainer) return;
-            let secureFiles = await fbFetch('secure_uploaded_files') || [];
+            let secureFiles = getLocalData('secure_uploaded_files') || [];
             fileListContainer.innerHTML = '';
             let validFiles = secureFiles.filter(f => f !== null);
             if (validFiles.length === 0) {
@@ -599,36 +606,36 @@
             });
         }
 
-        async function deleteSecureFile(id) {
+        function deleteSecureFile(id) {
             if(confirm('ফাইলটি মুছে ফেলবেন?')) {
-                let secureFiles = await fbFetch('secure_uploaded_files') || [];
+                let secureFiles = getLocalData('secure_uploaded_files') || [];
                 secureFiles = secureFiles.filter(f => f && f.id !== id);
-                await fbPut('secure_uploaded_files', secureFiles);
+                setLocalData('secure_uploaded_files', secureFiles);
                 loadSecureFiles();
             }
         }
 
         // --- নোটবুক ---
-        async function switchNotebookCategory(category) {
+        function switchNotebookCategory(category) {
             currentNotebookCategory = category;
             document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active-sub-tab'));
             document.getElementById('sub-tab-' + category).classList.add('active-sub-tab');
             loadAdminNotes();
         }
 
-        async function saveAdminNotes() {
+        function saveAdminNotes() {
             const notesText = document.getElementById('adminNotebookInput').value;
-            await fbPut('admin_notebook_' + currentNotebookCategory, { text: notesText });
-            alert('নোট অনলাইন ডাটাবেজে সেভ হয়েছে!');
+            setLocalData('admin_notebook_' + currentNotebookCategory, { text: notesText });
+            alert('নোট সেভ হয়েছে!');
         }
 
-        async function loadAdminNotes() {
-            const savedData = await fbFetch('admin_notebook_' + currentNotebookCategory);
+        function loadAdminNotes() {
+            const savedData = getLocalData('admin_notebook_' + currentNotebookCategory);
             document.getElementById('adminNotebookInput').value = savedData ? savedData.text : '';
         }
 
         // --- ভর্তি আবেদন ---
-        async function saveData(e) {
+        function saveData(e) {
             e.preventDefault();
             const student = {
                 id: Date.now(),
@@ -639,9 +646,9 @@
                 phone: document.getElementById('sPhone').value,
                 status: 'Pending'
             };
-            let studentsList = await fbFetch('allStudents') || [];
+            let studentsList = getLocalData('allStudents') || [];
             studentsList.push(student);
-            await fbPut('allStudents', studentsList);
+            setLocalData('allStudents', studentsList);
 
             document.getElementById('successBox').style.display = 'block';
             document.getElementById('admissionForm').reset();
@@ -657,7 +664,7 @@
                 document.getElementById('dashboardBox').style.display = 'block';
                 loadAllAdminData();
                 clearInterval(chatRefreshInterval);
-                chatRefreshInterval = setInterval(loadLiveAdminChats, 2500);
+                chatRefreshInterval = setInterval(loadLiveAdminChats, 1500);
             } else {
                 alert('ভুল পাসওয়ার্ড!');
             }
@@ -677,10 +684,10 @@
             document.getElementById('tab-btn-' + tabName).classList.add('active-tab');
         }
 
-        async function loadStudentsInTable() {
+        function loadStudentsInTable() {
             const container = document.getElementById('studentTable');
             if(!container) return;
-            let students = await fbFetch('allStudents') || [];
+            let students = getLocalData('allStudents') || [];
             container.innerHTML = '';
             let validStudents = students.filter(s => s !== null);
 
@@ -725,13 +732,13 @@
         function enableStudentEdit(id) { editingStudentId = id; loadStudentsInTable(); }
         function cancelStudentEdit() { editingStudentId = null; loadStudentsInTable(); }
 
-        async function saveStudentEdit(id) {
+        function saveStudentEdit(id) {
             const updatedName = document.getElementById(`edit-name-${id}`).value.trim();
             const updatedFather = document.getElementById(`edit-father-${id}`).value.trim();
             const updatedBirth = document.getElementById(`edit-birth-${id}`).value.trim();
             const updatedPhone = document.getElementById(`edit-phone-${id}`).value.trim();
 
-            let students = await fbFetch('allStudents') || [];
+            let students = getLocalData('allStudents') || [];
             students = students.map(st => {
                 if(st && st.id === id) {
                     st.name = updatedName;
@@ -741,26 +748,26 @@
                 }
                 return st;
             });
-            await fbPut('allStudents', students);
+            setLocalData('allStudents', students);
             editingStudentId = null; 
             loadStudentsInTable();
         }
 
-        async function approveStudent(id) {
-            let students = await fbFetch('allStudents') || [];
+        function approveStudent(id) {
+            let students = getLocalData('allStudents') || [];
             students = students.map(st => {
                 if(st && st.id === id) st.status = 'Approved';
                 return st;
             });
-            await fbPut('allStudents', students);
+            setLocalData('allStudents', students);
             loadStudentsInTable();
         }
 
-        async function deleteStudent(id) {
+        function deleteStudent(id) {
             if(confirm('আবেদনটি বাতিল করবেন?')) {
-                let students = await fbFetch('allStudents') || [];
+                let students = getLocalData('allStudents') || [];
                 students = students.filter(st => st && st.id !== id);
-                await fbPut('allStudents', students);
+                setLocalData('allStudents', students);
                 loadStudentsInTable();
             }
         }
