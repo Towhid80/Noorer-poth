@@ -48,10 +48,6 @@
         .page-content { display: none; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); animation: fadeIn 0.4s ease-in-out; }
         .page-content.active-page { display: block; }
 
-        @media (min-width: 768px) {
-            .page-content { padding: 40px; }
-        }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -106,7 +102,7 @@
         #chatUserName { width: 75px; padding: 10px 8px; border: 1px solid #ccd0d5; border-radius: 20px; outline: none; font-size: 13px; flex-shrink: 0; background: #f0f2f5; font-weight: bold; text-align: center; }
         #chatTextInput { flex: 1; padding: 10px 15px; border: 1px solid #ccd0d5; border-radius: 20px; outline: none; font-size: 13px; min-width: 0; background: #f0f2f5; }
         
-        .chat-icon-btn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 5px; display: flex; align-items: center; justify-content: center; color: #0b5133; flex-shrink: 0; }
+        .chat-icon-btn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 5px; display: flex; align-items: center; justify-content: center; color: #0b5133; flex-shrink: 0; margin-left: 2px; }
         .chat-send-btn { background: #0b5133; color: white; border: none; padding: 10px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 13px; flex-shrink: 0; }
 
         /* এডমিন ড্যাশবোর্ড */
@@ -165,7 +161,7 @@
         <nav>
             <ul>
                 <li><a id="link-home" onclick="switchPage('home')" class="active-link">হোম</a></li>
-                <li><a id="link-quran" onclick="switchPage('quran')">کুরআন শিক্ষা</a></li>
+                <li><a id="link-quran" onclick="switchPage('quran')">কুরআন শিক্ষা</a></li>
                 <li><a id="link-ghazal" onclick="switchPage('ghazal')">গজল ও নাত</a></li>
                 <li><a id="link-contact" onclick="switchPage('contact')">যোগাযোগ</a></li>
                 <li><a id="link-admission" onclick="switchPage('admission')" class="admission-btn">ভর্তি হন</a></li>
@@ -243,14 +239,14 @@
                         </div>
                         <div id="chatMessages" class="chat-messages"></div>
                         <div class="chat-input-area">
-                            <input type="text" id="chatUserName" placeholder="আপনার নাম" onchange="initStudentChat()">
+                            <input type="text" id="chatUserName" placeholder="আপনার নাম" oninput="initStudentChat()">
                             
                             <label class="chat-icon-btn" title="ছবি পাঠান">
                                 🖼️
                                 <input type="file" id="chatImageInput" accept="image/*" style="display:none;" onchange="sendChatImage(false)">
                             </label>
 
-                            <input type="text" id="chatTextInput" placeholder="মেসেজ বা ইমোজি লিখুন..." onkeydown="if(event.key==='Enter') sendChatMessage(false)">
+                            <input type="text" id="chatTextInput" placeholder="মেসেজ বা ইমোজি লিখুন..." onkeydown="if(event.key==='Enter') { sendChatMessage(false); event.preventDefault(); }">
                             <button class="chat-send-btn" onclick="sendChatMessage(false)">পাঠান</button>
                         </div>
                     </div>
@@ -311,7 +307,7 @@
                                         🖼️
                                         <input type="file" id="adminChatImageInput" accept="image/*" style="display:none;" onchange="sendChatImage(true)">
                                     </label>
-                                    <input type="text" id="adminChatTextInput" placeholder="ছাত্রকে উত্তর দিন..." onkeydown="if(event.key==='Enter') sendChatMessage(true)">
+                                    <input type="text" id="adminChatTextInput" placeholder="ছাত্রকে উত্তর দিন..." onkeydown="if(event.key==='Enter') { sendChatMessage(true); event.preventDefault(); }">
                                     <button onclick="sendChatMessage(true)" style="background: #dc3545;" class="chat-send-btn">পাঠান</button>
                                 </div>
                             </div>
@@ -352,7 +348,7 @@
     </footer>
 
     <script>
-        // ক্লাউড ডেটাবেজ লিংক (কোনো অ্যাকাউন্ট খোলার ঝামেলা ছাড়াই সরাসরি কাজ করবে)
+        // ক্লাউড ডেটাবেজ লিংক 
         const FIREBASE_URL = "https://noorer-poth-default-rtdb.firebaseio.com/"; 
 
         let currentNotebookCategory = 'students';
@@ -388,7 +384,7 @@
             
             if(pageName === 'contact') {
                 initStudentChat();
-                chatRefreshInterval = setInterval(renderStudentChatView, 2500); // ২.৫ সেকেন্ড পর পর রিয়েল-টাইম আপডেট হবে
+                chatRefreshInterval = setInterval(renderStudentChatView, 2500); // ২.৫ সেকেন্ড পর পর অটো রিলোড
             }
             if(pageName === 'admin' && isUserLoggedInAsAdmin) {
                 loadAllAdminData();
@@ -405,8 +401,10 @@
                 renderStudentChatView();
             } else {
                 const savedName = localStorage.getItem('my_chat_name');
-                if(savedName) document.getElementById('chatUserName').value = savedName;
-                renderStudentChatView();
+                if(savedName) {
+                    document.getElementById('chatUserName').value = savedName;
+                    renderStudentChatView();
+                }
             }
         }
 
@@ -443,7 +441,14 @@
                     </div>`;
             });
 
+            // চ্যাট স্ক্রল লক হ্যান্ডলিং করা হলো
+            let initialLoad = (chatBox.innerHTML === "");
             chatBox.innerHTML = chatHTML ? chatHTML : '<p style="text-align:center; color:#999; margin-top:20px; font-size:13px;">কোনো মেসেজ নেই। নিচে কিছু লিখে বা ছবি সিলেক্ট করে পাঠান।</p>';
+            
+            if(initialLoad || chatBox.dataset.shouldScroll === "true") {
+                chatBox.scrollTop = chatBox.scrollHeight;
+                chatBox.dataset.shouldScroll = "false";
+            }
         }
 
         async function sendChatMessage(isAdminMode) {
@@ -464,6 +469,10 @@
             await fbPut(`chats/${studentName}`, allChats);
             textInput.value = '';
             
+            // পাঠানোর পর স্বয়ংক্রিয়ভাবে স্ক্রল ডাউন হবে
+            let chatBox = document.getElementById(isAdminMode ? 'adminChatMessagesBox' : 'chatMessages');
+            if(chatBox) chatBox.dataset.shouldScroll = "true";
+
             if(isAdminMode) renderAdminChatBoxView(); else renderStudentChatView();
         }
 
@@ -485,6 +494,10 @@
                 });
                 await fbPut(`chats/${studentName}`, allChats);
                 fileInput.value = '';
+                
+                let chatBox = document.getElementById(isAdminMode ? 'adminChatMessagesBox' : 'chatMessages');
+                if(chatBox) chatBox.dataset.shouldScroll = "true";
+
                 if(isAdminMode) renderAdminChatBoxView(); else renderStudentChatView();
             };
             reader.readAsDataURL(file);
@@ -534,6 +547,8 @@
         function openStudentChatForAdmin(studentName) {
             selectedStudentChat = studentName;
             document.getElementById('adminSelectedChatTitle').innerText = `💬 চ্যাট করছেন: ${studentName}-এর সাথে`;
+            let adminChatBox = document.getElementById('adminChatMessagesBox');
+            if(adminChatBox) adminChatBox.dataset.shouldScroll = "true";
             renderAdminChatBoxView();
         }
 
@@ -563,6 +578,10 @@
             });
 
             adminChatBox.innerHTML = chatHTML;
+            if(adminChatBox.dataset.shouldScroll === "true") {
+                adminChatBox.scrollTop = adminChatBox.scrollHeight;
+                adminChatBox.dataset.shouldScroll = "false";
+            }
         }
 
         // --- ফাইল আপলোড ---
@@ -602,7 +621,7 @@
         }
 
         async function deleteSecureFile(id) {
-            if(confirm('ফাইলটি মুছবেন?')) {
+            if(confirm('ফাইলটি mu_chhe_phelben?')) {
                 let secureFiles = await fbFetch('secure_uploaded_files') || [];
                 secureFiles = secureFiles.filter(f => f && f.id !== id);
                 await fbPut('secure_uploaded_files', secureFiles);
